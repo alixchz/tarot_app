@@ -10,7 +10,7 @@ import copy
 
 necessary_score_bouts_info = { "0":56, "1":51, "2":41, "3":36 }
 card_style = dict(width=500, marginTop=0)
-score_factor_prise_info =  { "petite":1, "garde":2, "gardecontre":4, "gardesans":6 }
+score_factor_prise_info =  { "petite":1, "garde":2, "garde_contre":4, "garde_sans":6 }
 
 class Donne:
     def __init__(self, prise: str, bouts: list, pts_preneur: float, pts_def: float, petit_au_bout = bool, chelem = bool, display_mode = bool):
@@ -24,13 +24,15 @@ class Donne:
 
 def show_donne(donne_observable):
     contrat_objectif = lambda: "{}".format(necessary_score_bouts_info[str(len(donne_observable.bouts()))])
-    #result_score_preneur = lambda: "{}".format(25 + (donne_observable.pts_preneur - int(contrat_objectif())) * score_factor_prise_info[donne_observable.prise])
+    result_score_preneur = lambda: "{}".format(25 + (donne_observable.pts_preneur() - int(contrat_objectif())) * score_factor_prise_info[donne_observable.prise()])
+    nb_bouts = len(donne_observable.bouts())
     return Card([
-        Space([
-            donne_observable.prise(),
-            donne_observable.pts_preneur(),
-            #result_score_preneur,
-        ]),
+        div([
+            Text(["Contrat : {} points ({})".format(contrat_objectif(), donne_observable.prise().replace('_',' '))]),
+            Text(["Résultat : {} points avec {} bout{}".format(donne_observable.pts_preneur(), nb_bouts, '' if nb_bouts==1 else 's')]),
+            Text(["Score : {}{} pour le preneur".format('+' if float(result_score_preneur()) >=0 else '', result_score_preneur())]),
+        ],
+        style={"display": "flex", "flexDirection": "column"}),
         Button(
                     "Modifier",
                     type="primary",
@@ -51,16 +53,16 @@ def edit_donne(donne_observable):
                 Col(Checkbox("Double poignée (13)"), span=10),
                 Col(Checkbox("Grand chelem"), span=10),
             ]),
-        style=dict(width="100%"),
+        style=dict(width=150),
         )
     radioPrise = Radio.Group([
                     Radio("Petite", value="petite"),
                     Radio("Garde", value="garde"),
-                    Radio("Garde contre", value="gardecontre"),
-                    Radio("Garde sans", value="gardesans"),],
+                    Radio("Garde contre", value="garde_contre"),
+                    Radio("Garde sans", value="garde_sans"),],
                     value = donne_observable.prise,
                     ),
-    compute_other_score = lambda s: 91 - s
+    compute_other_score = lambda s: 91 - s if s else ''
     pts_preneur_input = InputNumber(
         value = donne_observable.pts_preneur, 
         min = 0,
@@ -104,13 +106,13 @@ def edit_donne(donne_observable):
                     )
                 ]),
                 div([
+                    #Button(
+                    #    "Calculer le score",
+                    #    onClick=lambda: donne_observable.display_mode.set(True),
+                    #    style=dict(marginTop=25)
+                    #),
                     Button(
-                        "Calculer le score",
-                        onClick=lambda: donne_observable.display_mode.set(True),
-                        style=dict(marginTop=25)
-                    ),
-                    Button(
-                        "Enregistrer",
+                        "Valider",
                         type="primary",
                         onClick=lambda: donne_observable.display_mode.set(True),
                         style=dict(marginTop=25, marginLeft=20)
