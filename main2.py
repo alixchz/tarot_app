@@ -1,4 +1,5 @@
 import copy
+from itertools import count
 
 from reflect import Mapping, make_observable
 from reflect_antd import (
@@ -15,9 +16,8 @@ from reflect_antd import (
 from reflect_html import div
 
 Text = Typography.Text
-card_style = dict(width=500, marginTop=20)
-
-necessary_score_bouts_info = {"0": 56, "1": 51, "2": 41, "3": 36}
+card_style = {"width": 500, "marginTop": 20}
+necessary_score_bouts_info = [56, 51, 41, 36]
 score_factor_prise_info = {"petite": 1, "garde": 2, "garde_contre": 4, "garde_sans": 6}
 dict_test = {"bon": "chat", "truand": "chien", "888": "pasdiable", "666": "diable"}
 
@@ -45,12 +45,10 @@ class Donne:
 
 
 def show_donne(donne_observable):
-    contrat_objectif = lambda: "{}".format(
-        necessary_score_bouts_info[str(len(donne_observable.bouts()))]
-    )
+    contrat_objectif = lambda: necessary_score_bouts_info[len(donne_observable.bouts())]
     result_score_preneur = lambda: "{}".format(
         25
-        + (donne_observable.pts_preneur() - int(contrat_objectif()))
+        + (donne_observable.pts_preneur() - contrat_objectif())
         * score_factor_prise_info[donne_observable.prise()]
     )
     nb_bouts = len(donne_observable.bouts())
@@ -111,16 +109,14 @@ def edit_donne(donne_observable):
         ),
         style=dict(width=150),
     )
-    radioPrise = (
-        Radio.Group(
-            [
-                Radio("Petite", value="petite"),
-                Radio("Garde", value="garde"),
-                Radio("Garde contre", value="garde_contre"),
-                Radio("Garde sans", value="garde_sans"),
-            ],
-            value=donne_observable.prise,
-        ),
+    radioPrise = Radio.Group(
+        [
+            Radio("Petite", value="petite"),
+            Radio("Garde", value="garde"),
+            Radio("Garde contre", value="garde_contre"),
+            Radio("Garde sans", value="garde_sans"),
+        ],
+        value=donne_observable.prise,
     )
     compute_other_score = lambda s: 91 - s if s else ""
     pts_preneur_input = InputNumber(
@@ -135,26 +131,24 @@ def edit_donne(donne_observable):
         max=91,
         onChange=lambda s: pts_preneur_input.set(compute_other_score(s)),
     )
-    bouts_ckb_group = Checkbox.Group(
-            options=["Petit", "21", "Excuse"],
-            value=donne_observable.bouts,
-            style=dict(marginLeft=28, marginTop=10),
-        )
-    contrat_objectif = lambda: necessary_score_bouts_info[str(len(bouts_ckb_group()))]
+    contrat_objectif = (
+        lambda: f"(contrat de {necessary_score_bouts_info[len(donne_observable.bouts())]} pts)"
+    )
     # result_score_preneur = lambda: "{}".format(25 + (20 - float(contrat_objectif)) * score_factor_prise_info[donne_observable.prise])
 
     return (
         Card(
             [
                 radioPrise,
-                # Space([
-                #    annonces_ckb_group,
-                # ], style=dict(marginTop= 20)),
                 Space(
                     [
                         Text("Bouts ", strong=True),
-                        bouts_ckb_group,
-                        div(["(contrat de ", contrat_objectif, " pts)"]),
+                        Checkbox.Group(
+                            options=["Petit", "21", "Excuse"],
+                            value=donne_observable.bouts,
+                            style=dict(marginLeft=28, marginTop=10),
+                        ),
+                        div(contrat_objectif),
                     ],
                     style=dict(marginTop=20),
                 ),
@@ -212,14 +206,13 @@ def generate_donne_display(donne_observable):
 
 
 def app():
-    current_id = make_observable(1)
+    current_id = count(1)
     blank_donne = Donne(1, "petite", [], 0, 91, False, False, False)
     donnes_observable = make_observable([copy.copy(blank_donne)], depth=4, key="donnes")
 
     def create_new_donne():
-        current_id.set(current_id() + 1)
         new_blank_donne = copy.copy(blank_donne)
-        new_blank_donne.id = current_id()
+        new_blank_donne.id = next(current_id)
         donnes_observable.append(new_blank_donne)
 
     return div(
