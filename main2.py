@@ -1,30 +1,24 @@
-from reflect import Mapping, make_observable
-from reflect_antd import Button, InputNumber, Space
-from reflect_html import div
-from reflect_html import h1
-from reflect import Controller, make_observable
-from reflect_antd import (
-    Button,
-    Space,
-    InputNumber,
-    Checkbox,
-    Card,
-    Row,
-    Col,
-    Divider,
-    Select,
-    Radio,
-    Typography,
-)
-import numpy as np
-
-Text = Typography.Text
 import copy
 
-necessary_score_bouts_info = {"0": 56, "1": 51, "2": 41, "3": 36}
-card_style = dict(width=500, marginTop=20)
-score_factor_prise_info = {"petite": 1, "garde": 2, "garde_contre": 4, "garde_sans": 6}
+from reflect import Mapping, make_observable
+from reflect_antd import (
+    Button,
+    Card,
+    Checkbox,
+    Col,
+    InputNumber,
+    Radio,
+    Row,
+    Space,
+    Typography,
+)
+from reflect_html import div
 
+Text = Typography.Text
+card_style = dict(width=500, marginTop=20)
+
+necessary_score_bouts_info = {"0": 56, "1": 51, "2": 41, "3": 36}
+score_factor_prise_info = {"petite": 1, "garde": 2, "garde_contre": 4, "garde_sans": 6}
 dict_test = {"bon": "chat", "truand": "chien", "888": "pasdiable", "666": "diable"}
 
 
@@ -141,14 +135,12 @@ def edit_donne(donne_observable):
         max=91,
         onChange=lambda s: pts_preneur_input.set(compute_other_score(s)),
     )
-    bouts_ckb_group = (
-        Checkbox.Group(
+    bouts_ckb_group = Checkbox.Group(
             options=["Petit", "21", "Excuse"],
             value=donne_observable.bouts,
             style=dict(marginLeft=28, marginTop=10),
-        ),
-    )
-    contrat_objectif = necessary_score_bouts_info[str(len(bouts_ckb_group))]
+        )
+    contrat_objectif = lambda: necessary_score_bouts_info[str(len(bouts_ckb_group()))]
     # result_score_preneur = lambda: "{}".format(25 + (20 - float(contrat_objectif)) * score_factor_prise_info[donne_observable.prise])
 
     return (
