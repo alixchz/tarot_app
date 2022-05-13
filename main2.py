@@ -199,22 +199,18 @@ def edit_donne(donne_observable):
 
 
 def generate_donne_display(donne_observable):
-    if donne_observable.display_mode():
-        return show_donne(donne_observable)
-    else:
-        return edit_donne(donne_observable)
+    return (show_donne if donne_observable.display_mode() else edit_donne)(
+        donne_observable
+    )
 
 
 def app():
     current_id = count(1)
-    blank_donne = Donne(1, "petite", [], 0, 91, False, False, False)
-    donnes_observable = make_observable([copy.copy(blank_donne)], depth=4, key="donnes")
 
     def create_new_donne():
-        new_blank_donne = copy.copy(blank_donne)
-        new_blank_donne.id = next(current_id)
-        donnes_observable.append(new_blank_donne)
+        return Donne(next(current_id), "petite", [], 0, 91, False, False, False)
 
+    donnes_observable = make_observable([create_new_donne()], depth=4, key="donnes")
     return div(
         [
             Mapping(generate_donne_display, donnes_observable, key="donnes_mapping"),
@@ -222,7 +218,7 @@ def app():
                 "+ Nouvelle donne",
                 style=dict(width=150, marginTop=20, marginBottom=20),
                 type="primary",
-                onClick=create_new_donne,
+                onClick=lambda: donnes_observable.append(create_new_donne()),
             ),
         ],
         style={"display": "flex", "flexDirection": "column", "marginLeft": 40},
