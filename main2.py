@@ -1,4 +1,3 @@
-import copy
 from itertools import count
 
 from reflect import Mapping, make_observable
@@ -19,7 +18,6 @@ Text = Typography.Text
 card_style = {"width": 500, "marginTop": 20}
 necessary_score_bouts_info = [56, 51, 41, 36]
 score_factor_prise_info = {"petite": 1, "garde": 2, "garde_contre": 4, "garde_sans": 6}
-dict_test = {"bon": "chat", "truand": "chien", "888": "pasdiable", "666": "diable"}
 
 
 class Donne:
@@ -45,10 +43,10 @@ class Donne:
 
 
 def show_donne(donne_observable):
-    contrat_objectif = lambda: necessary_score_bouts_info[len(donne_observable.bouts())]
-    result_score_preneur = lambda: "{}".format(
+    contrat_objectif = necessary_score_bouts_info[len(donne_observable.bouts())]
+    result_score_preneur = lambda: (
         25
-        + (donne_observable.pts_preneur() - contrat_objectif())
+        + (donne_observable.pts_preneur() - contrat_objectif)
         * score_factor_prise_info[donne_observable.prise()]
     )
     nb_bouts = len(donne_observable.bouts())
@@ -59,7 +57,7 @@ def show_donne(donne_observable):
                     Text(
                         [
                             "Contrat : {} points ({})".format(
-                                contrat_objectif(),
+                                contrat_objectif,
                                 donne_observable.prise().replace("_", " "),
                             )
                         ]
@@ -76,7 +74,7 @@ def show_donne(donne_observable):
                     Text(
                         [
                             "Score : {}{} pour le preneur".format(
-                                "+" if float(result_score_preneur()) >= 0 else "",
+                                "+" if result_score_preneur() >= 0 else "",
                                 result_score_preneur(),
                             )
                         ]
