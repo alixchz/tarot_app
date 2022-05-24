@@ -17,7 +17,7 @@ from reflect_html import div
 Text = Typography.Text
 card_style = {"width": 500, "marginTop": 20}
 necessary_score_bouts_info = [56, 51, 41, 36]
-score_factor_prise_info = {"petite": 1, "garde": 2, "garde_contre": 4, "garde_sans": 6}
+score_factor_prise_info = {"petite": 1, "garde": 2, "garde_sans": 4, "garde_contre": 6}
 
 
 class Donne:
@@ -47,6 +47,9 @@ def show_donne(donne_observable):
     result_score_preneur = lambda: (
         25
         + (donne_observable.pts_preneur() - contrat_objectif)
+        * score_factor_prise_info[donne_observable.prise()]
+        + int(donne_observable.petit_au_bout())
+        * 10
         * score_factor_prise_info[donne_observable.prise()]
     )
     nb_bouts = len(donne_observable.bouts())
@@ -107,12 +110,16 @@ def edit_donne(donne_observable):
         ),
         style=dict(width=150),
     )
+    petit_au_bout_ckb = Checkbox(
+        "Petit au bout", checked=donne_observable.petit_au_bout
+    )
+    chelem_ckb = Checkbox("Chelem", checked=donne_observable.chelem)
     radioPrise = Radio.Group(
         [
             Radio("Petite", value="petite"),
             Radio("Garde", value="garde"),
-            Radio("Garde contre", value="garde_contre"),
             Radio("Garde sans", value="garde_sans"),
+            Radio("Garde contre", value="garde_contre"),
         ],
         value=donne_observable.prise,
     )
@@ -173,6 +180,14 @@ def edit_donne(donne_observable):
                             style=dict(marginLeft=25, marginTop=15),
                         ),
                     ]
+                ),
+                Space(
+                    [
+                        Text("Bonus ", strong=True),
+                        petit_au_bout_ckb,
+                        chelem_ckb,
+                    ],
+                    style=dict(marginTop=15),
                 ),
                 div(
                     [
