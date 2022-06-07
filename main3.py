@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from functools import partial
-from itertools import chain, count
+from itertools import count
 from typing import Tuple
 
 from reflect_antd import (
@@ -16,11 +16,13 @@ from reflect_antd import (
     Transfer,
 )
 from reflect_html import div
-from reflect_utils.antd import create_form_row
+from reflect_utils.antd import centered
 from reflect import js, make_observable
 
-TITLE = "Tarot"
+necessary_score_bouts_info = { "0":56, "1":51, "2":41, "3":36 }
 
+TITLE = "Tarot"
+GREEN = "green"
 COLUMNS_DONNES = [
     {"title": "Donne", "dataIndex": "key"},
     {"title": "Prise", "dataIndex": "prise"},
@@ -36,10 +38,6 @@ COLUMNS_PLAYERS = [
     {"title": "Points", "dataIndex": "points"},
     {"title": "", "dataIndex": "edit"},
 ]
-
-
-def update_dict(d, **kwargs):
-    return dict(chain(d.items(), kwargs.items()))
 
 
 @dataclass
@@ -170,13 +168,17 @@ def create_donne_edit_panel(players, edit_donne_observable):
         targetKeys=edit_donne_observable._joueur_ids,
         showSelectAll=False,
     )
+    contrat_objectif = lambda: "{}".format(necessary_score_bouts_info[str(len(bouts()))])
     return Col(
         [
-            create_form_row("Prise", prise),
-            create_form_row("Preneur", pts_preneur),
-            create_form_row("Defense", pts_defense),
-            create_form_row("Bouts", bouts),
-            create_form_row("Camps", camps),
+            centered(prise, style={"padding": "10px"}),
+            centered(bouts, style={"padding": "10px"}),
+            centered(camps, style={"padding": "10px"}),
+            centered(
+                ["Preneur", pts_preneur, "Defense", pts_defense],
+                style={"padding": "10px"},
+            ),
+            centered(["Contrat ", contrat_objectif])
         ]
     )
 
@@ -184,8 +186,7 @@ def create_donne_edit_panel(players, edit_donne_observable):
 def create_player_edit_panel(edit_player_observable):
     return Col(
         [
-            create_form_row(
-                "Nom",
+            centered(
                 Input(value=edit_player_observable.name, placeholder="Nom du joueur"),
             )
         ]
@@ -196,17 +197,25 @@ def app():
     donnes = make_observable([], depth=1)
     players = make_observable([], depth=1)
     players.append(Player(0))
-    return Tabs(
-        [
-            Collection(
-                donnes,
-                COLUMNS_DONNES,
-                Donne,
-                partial(create_donne_edit_panel, players),
-                "Donnes",
-            ).tab_panel,
-            Collection(
-                players, COLUMNS_PLAYERS, Player, create_player_edit_panel, "Joueurs"
-            ).tab_panel,
-        ],
+    return div(
+        Tabs(
+            [
+                Collection(
+                    donnes,
+                    COLUMNS_DONNES,
+                    Donne,
+                    partial(create_donne_edit_panel, players),
+                    "Donnes",
+                ).tab_panel,
+                Collection(
+                    players,
+                    COLUMNS_PLAYERS,
+                    Player,
+                    create_player_edit_panel,
+                    "Joueurs",
+                ).tab_panel,
+            ],
+            style={"padding": 10},
+        ),
+        style={"background": GREEN, "height": "100%"},
     )

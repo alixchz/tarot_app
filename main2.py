@@ -19,6 +19,7 @@ card_style = {"width": 500, "marginTop": 20}
 necessary_score_bouts_info = [56, 51, 41, 36]
 score_factor_prise_info = {"petite": 1, "garde": 2, "garde_contre": 4, "garde_sans": 6}
 
+TITLE = "Tarot"
 
 class Donne:
     def __init__(
